@@ -155,3 +155,59 @@ def nodeCurrent(elemDict, nodeDictL, attachedElems, startV, nUpdate=None):
             print('son u have a problem in the nodeCurrent calc')
             print(elemDict[abs(eID)].typ)
     return nodalCurrent
+
+def writeOutput(nDict, eDict, filename):
+    with open(filename, 'w') as f:
+        for nid in nDict.keys():
+            f.write('V(' + str(nid) + ') ' + str(round(nDict[nid].V, 2)) + '\n')
+        for eid in eDict.keys():
+            if eDict[eid].current is None:
+                f.write('I(' + eDict[eid].name + ') None\n')
+            else:
+                f.write('I(' + eDict[eid].name + ') ' + str(round(eDict[eid].current, 2)) + '\n')
+    return True
+
+def readOutput(filename):
+    nodeDict = dict()
+    elemDict = dict()
+    with open(filename, 'r') as f:
+        for line in f:
+            if line[0] == 'V':
+                nodeDict[line.split()[0][2:-1].upper()] = float(line.split()[1])
+            elif line[0] == 'I':
+                    elemDict[line.split()[0][2:-1].upper()] = float(line.split()[1])
+    if '0' not in nodeDict.keys():
+        nodeDict['0'] = 0.0
+    return nodeDict, elemDict
+
+# test file vs ref file
+def compareOutputs(tfile, rfile):
+    tNodes, tElems = readOutput(tfile)
+    rNodes, rElems = readOutput(rfile)
+    nodeDiff = dict()
+    for nid in tNodes:
+        if nid in rNodes:
+            if np.isclose(tNodes[nid], rNodes[nid]):
+                nodeDiff[nid] = 0
+            else:
+                nodeDiff[nid] = 2 * (tNodes[nid] - rNodes[nid]) / (tNodes[nid] + rNodes[nid])
+        else:
+            print('Results are different length!!')
+            break
+    elemDiff = dict()
+    for eid in tElems:
+        if eid in rElems:
+            if np.isclose(tElems[eid], rElems[eid]):
+                elemDiff[eid] = 0
+            else:
+                elemDiff[eid] = 2 * (tElems[eid] - rElems[eid]) / (tElems[eid] + rElems[eid])
+        else:
+            print('Results are different length!!')
+            break
+    return nodeDiff, elemDiff
+
+if __name__ == '__main__':
+    nDiff, eDiff = compareOutputs('./output.txt', './refCircuit.txt')
+    print(nDiff)
+    print(eDiff)
+
