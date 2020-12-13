@@ -35,10 +35,12 @@ class Supernode:
         self.BV = 0
         for nid in self.nodeCol:
                 self.elemSet.update(nDict[nid].elemSet)
-        # take out any elements that appear twice (ones that are inside the supernode)
-        posSet = {item for item in self.elemSet if item > 0}
-        negSet = {abs(item) for item in self.elemSet if item < 0}
-        self.internalElemset = posSet.intersection(negSet)
+        # find elements internal to the supernode:
+        self.internalElemset = set()
+        for eid in self.elemSet:
+            if -eid in self.elemSet and eDict[abs(eid)].typ in {'V', 'L'}:
+                self.internalElemset.add(abs(eid))
+
         elems = self.elemSet - self.internalElemset - {-item for item in self.internalElemset}
         self.elemSet = dict()
         for eid in elems:
@@ -120,7 +122,19 @@ def circuitPreprocess(filepath):
             if elem.typ == 'V':
                 vsources.append([pnode, nnode, float(elem.value), elem.typ, elem.id])
 
-    return (elemDict, nodeDict, vsources)
+    # Take out any shorted elements
+    shortedElems = set()
+    for eid in elemDict.keys():
+        if elemDict[eid].pnode == elemDict[eid].nnode:
+            shortedElems.add(abs(eid))
+            shortedElems.add(-abs(eid))
+    for eid in shortedElems:
+        if eid > 0:
+            del elemDict[eid]
+    for node in nodeDict.values():
+        node.elemSet = node.elemSet - shortedElems
+
+    return (elemDict, nodeDict, shortedElems, vsources)
 
 def nodeCurrent(elemDict, nodeDictL, attachedElems, startV, nUpdate=None):
     nodalCurrent = 0

@@ -17,7 +17,7 @@ printResults = True
 printSupernodes = True
 
 ##### File Input #####
-elemDict, nodeDict, _ = circuitPreprocess('./circuit.txt')
+elemDict, nodeDict, shortedElems, _ = circuitPreprocess('./circuit.txt')
 if printRead:
     print('**** Preprocessing ****')
     print('Elements:')
@@ -25,6 +25,9 @@ if printRead:
         elemDict[eid].prnt()
     print('Nodes:')
     print(nodeDict)
+    for eid in shortedElems:
+        if eid > 0:
+            print('Element ' + str(eid) + ' is shorted and will be ignored')
 else:
     print('**** File Input Complete - Node and Element Definitions Created ****')
 
@@ -44,12 +47,7 @@ nodeClumps = []
 nodesInsideSupernodes = set()
 for elemid in elemDict.keys():
     elem = elemDict[elemid]
-    if elem.pnode == elem.nnode:
-        print('shorted elements not dealt with yet')
-        nodeClumps.append((elem.pnode, elem.nnode))
-        nodesInsideSupernodes.add(elem.pnode)
-        nodesInsideSupernodes.add(elem.nnode)
-    elif elem.typ in {'L', 'V'}:
+    if elem.typ in {'L', 'V'}:
         nodeClumps.append((elem.pnode, elem.nnode))
         nodesInsideSupernodes.add(elem.pnode)
         nodesInsideSupernodes.add(elem.nnode)
@@ -129,4 +127,7 @@ if printResults:
             print(elemDict[eid].name + ': None')
         else:
             print(elemDict[eid].name + ': ' + str(round(elemDict[eid].current, 2)))
+    for eid in shortedElems:
+        if eid > 0:
+            print('Element ' + str(eid) + ' has no current because it was shorted and ignored')
     print('Time Elapsed: ' + str(round(time.process_time() - t0, 4)) + ' s')
