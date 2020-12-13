@@ -8,6 +8,9 @@ import copy
 
 
 def funSPICE(inputFile, solverOptions, outputOptions):
+    # Debugging:
+    nodestocheck = set() #{'N009'}
+
     spiceRefNode = solverOptions['spiceRefNode']
     capAdmittance = solverOptions['capAdmittance']
     solverTolerance = solverOptions['solverTolerance']
@@ -80,7 +83,7 @@ def funSPICE(inputFile, solverOptions, outputOptions):
     for nodeid in nodeDictL:
         nodeDictL[nodeid].V = refV
     # Loop through nodes to update voltages
-    for i in range(10000):
+    for i in range(solverOptions['maxIters']):
         vchange = 0
         for nodeid in nodesToUpdate:
             if nodeid[0] == 'S':
@@ -96,7 +99,10 @@ def funSPICE(inputFile, solverOptions, outputOptions):
                 if nodeid == spiceRefNode:
                     pass
                 else:
-                    currentCalc = partial(nodeCurrent, elemDict, nodeDictL, {elem: nodeid for elem in nodeDictL[nodeid].elemSet})
+                    verbose = False
+                    if nodeid in nodestocheck:
+                        verbose = True
+                    currentCalc = partial(nodeCurrent, elemDict, nodeDictL, {elem: nodeid for elem in nodeDictL[nodeid].elemSet}, verbose=verbose)
                     nodeDictL[nodeid].V = newton(currentCalc, nodeDictL[nodeid].V)
                 vchange = max(abs(nodeDictL[nodeid].V - vOld), vchange)
 
@@ -144,8 +150,8 @@ def funSPICE(inputFile, solverOptions, outputOptions):
 
 if __name__ == '__main__':
     inputFile = './circuit.txt'
-    solverOptions = dict(spiceRefNode = '0', capAdmittance = 0, solverTolerance = 0.001, refV = 0.0)
-    outputOptions = dict(printRead = True, printResults = True, printSupernodes = True)
+    solverOptions = dict(spiceRefNode='0', capAdmittance=0, solverTolerance=10e-6, refV=0.0, maxIters=int(3*10e4))
+    outputOptions = dict(printRead=True, printResults=True, printSupernodes=True)
     #outputOptions = dict(printRead=False, printResults=True, printSupernodes=False)
     nodeDict, elemDict, shortedElems = funSPICE(inputFile, solverOptions, outputOptions)
     writeOutput(nodeDict, elemDict, './output.txt')

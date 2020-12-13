@@ -141,24 +141,37 @@ def circuitPreprocess(filepath):
 
     return (elemDict, nodeDict, shortedElems, vsources)
 
-def nodeCurrent(elemDict, nodeDictL, attachedElems, startV, nUpdate=None):
+def nodeCurrent(elemDict, nodeDictL, attachedElems, startV, nUpdate=None, verbose=False):
     nodalCurrent = 0
-    for eID, nid in attachedElems.items():
+    # For each attached element calculate its current
+    for eID, nid in attachedElems.items():  #attachedElems is {attachedElemID: nodeAttachedtothatelem, ...} -> for supernodes
+        if verbose:
+            print(elemDict[abs(eID)].name + 'Current: ')
+        # define voltage of current node
         if nUpdate is None:
             V = startV
         else:
             V = startV + nUpdate[nid]
+        # if its a resistor, calculate the current:
         if elemDict[abs(eID)].typ == 'R':
             if eID > 0:
                 resistorV = nodeDictL[elemDict[eID].nnode].V - V
             else:
                 resistorV = nodeDictL[elemDict[abs(eID)].pnode].V - V
-            nodalCurrent += resistorV / elemDict[abs(eID)].value
+            resistorI = resistorV / elemDict[abs(eID)].value
+            if verbose:
+                print(resistorI)
+            nodalCurrent += resistorI
         elif elemDict[abs(eID)].typ == 'I':
-            nodalCurrent += -elemDict[abs(eID)].value * np.sign(eID)
+            sourceI = -elemDict[abs(eID)].value * np.sign(eID)
+            nodalCurrent += sourceI
+            if verbose:
+                print(sourceI)
         else:
             print('son u have a problem in the nodeCurrent calc')
             print(elemDict[abs(eID)].typ)
+        if verbose:
+            print('Voltage at "home" node ' + str(nid) + ': ' + str(round(V,2)))
     return nodalCurrent
 
 def writeOutput(nDict, eDict, filename):
