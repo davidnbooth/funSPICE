@@ -25,9 +25,8 @@ if printRead:
         elemDict[eid].prnt()
     print('Nodes:')
     print(nodeDict)
-    for eid in shortedElems:
-        if eid > 0:
-            print('Element ' + str(eid) + ' is shorted and will be ignored')
+    for ename in {e for e in shortedElems.values()}:
+        print('Element ' + ename + ' is shorted and will be ignored')
 else:
     print('**** File Input Complete - Node and Element Definitions Created ****')
 
@@ -127,7 +126,6 @@ if printResults:
             print(elemDict[eid].name + ': None')
         else:
             print(elemDict[eid].name + ': ' + str(round(elemDict[eid].current, 2)))
-    for eid in shortedElems:
-        if eid > 0:
-            print('Element ' + str(eid) + ' has no current because it was shorted and ignored')
+    for ename in {e for e in shortedElems.values()}:
+        print('Element ' + ename + ' has no current because it was shorted and ignored')
     print('Time Elapsed: ' + str(round(time.process_time() - t0, 4)) + ' s')

@@ -62,7 +62,6 @@ class Supernode:
                 self.internalElems[eid].value = eDict[eid].value
         self.nUpdate = supernodeInternalGraph(self.internalNodes, self.internalElems)
 
-
     def updateNodes(self, nDict):
         vchange = 0
         for node in self.nodeCol:
@@ -123,16 +122,17 @@ def circuitPreprocess(filepath):
                 vsources.append([pnode, nnode, float(elem.value), elem.typ, elem.id])
 
     # Take out any shorted elements
-    shortedElems = set()
+    shortedElems = dict()
     for eid in elemDict.keys():
         if elemDict[eid].pnode == elemDict[eid].nnode:
-            shortedElems.add(abs(eid))
-            shortedElems.add(-abs(eid))
-    for eid in shortedElems:
+            shortedElems[abs(eid)] = elemDict[abs(eid)].name
+            shortedElems[-abs(eid)] = elemDict[abs(eid)].name
+    shortedElemIds = {eid for eid in shortedElems.keys()}
+    for eid in shortedElemIds:
         if eid > 0:
             del elemDict[eid]
     for node in nodeDict.values():
-        node.elemSet = node.elemSet - shortedElems
+        node.elemSet = node.elemSet - shortedElemIds
 
     return (elemDict, nodeDict, shortedElems, vsources)
 
