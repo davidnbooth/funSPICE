@@ -61,6 +61,11 @@ class Supernode:
             if elem.typ == 'V':
                 self.internalElems[eid].value = eDict[eid].value
         self.nUpdate = supernodeInternalGraph(self.internalNodes, self.internalElems)
+        if self.id == 0:
+            refV = self.nUpdate['0']
+            for key in self.nUpdate.keys():
+                self.nUpdate[key] = self.nUpdate[key] - refV
+
 
     def updateNodes(self, nDict):
         vchange = 0

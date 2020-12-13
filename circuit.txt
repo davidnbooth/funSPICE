@@ -1,4 +1,4 @@
-* /Users/beccacarmichael/Documents/DavidBoothStuff/FEM/Spice/Draft3.asc
+* /Users/beccacarmichael/Documents/DavidBoothStuff/funSPICE/circuits/multiplesourcesRLC.asc
 V1 N002 N011 5
 V2 N004 N006 5
 I1 P001 N001 2

@@ -52,6 +52,14 @@ def funSPICE(inputFile, solverOptions, outputOptions):
             nodesInsideSupernodes.add(elem.nnode)
     nodeClumps = clumpClumps(nodeClumps)
     supernodes = dict()
+    groundClump = None
+    for clump in nodeClumps:
+        if '0' in clump:
+            groundClump = clump
+            nodeClumps = [item for item in nodeClumps if item is not clump]
+            break
+    if groundClump is not None:
+        supernodes['S00'] = Supernode(0, groundClump, nodeDictL, elemDict)
     for i, clump in enumerate(nodeClumps):
         supernodes['S0' + str(i+1)] = Supernode(i+1, clump, nodeDictL, elemDict)
     if printSupernodes:
@@ -76,9 +84,13 @@ def funSPICE(inputFile, solverOptions, outputOptions):
         vchange = 0
         for nodeid in nodesToUpdate:
             if nodeid[0] == 'S':
-                currentCalc = partial(nodeCurrent, elemDict, nodeDictL, supernodes[nodeid].elemSet, nUpdate = supernodes[nodeid].nUpdate)
-                supernodes[nodeid].BV = newton(currentCalc, supernodes[nodeid].BV)
-                vchange = supernodes[nodeid].updateNodes(nodeDictL)
+                if nodeid == 'S00':
+                    supernodes[nodeid].BV = 0
+                    vchange = max(vchange, supernodes[nodeid].updateNodes(nodeDictL))  # updates the voltages in supernode
+                else:
+                    currentCalc = partial(nodeCurrent, elemDict, nodeDictL, supernodes[nodeid].elemSet, nUpdate = supernodes[nodeid].nUpdate)
+                    supernodes[nodeid].BV = newton(currentCalc, supernodes[nodeid].BV)
+                    vchange = max(supernodes[nodeid].updateNodes(nodeDictL), vchange)  # updates the voltages in supernode
             else:
                 vOld = nodeDictL[nodeid].V
                 if nodeid == spiceRefNode:
