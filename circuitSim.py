@@ -8,6 +8,7 @@ import copy
 
 
 def funSPICE(inputFile, solverOptions, outputOptions):
+    print('\n\n\n\n**** Simulation Start: ' + inputFile + ' ****')
     # Debugging:
     nodestocheck = set() #{'N009'}
 
@@ -122,9 +123,21 @@ def funSPICE(inputFile, solverOptions, outputOptions):
         for eid in elemDict.keys():
             if elemDict[eid].typ in {'V', 'L'}:
                 elemDict[eid].current = 0
+                eCP = 0
+                eCN = 0
                 for attachedElem in nodeDict[elemDict[eid].pnode].elemSet:
                     if abs(attachedElem) != elemDict[eid].id:
-                        elemDict[eid].current += -np.sign(attachedElem)*elemDict[abs(attachedElem)].current
+                        try:
+                            eCP += -np.sign(attachedElem)*elemDict[abs(attachedElem)].current
+                        except Exception:
+                            raise ValueError('eid: ' + str(eid) + ' failed on current update when adding ' + str(abs(attachedElem)))
+                for attachedElem in nodeDict[elemDict[eid].nnode].elemSet:
+                    if abs(attachedElem) != elemDict[eid].id:
+                        try:
+                            eCN += np.sign(attachedElem)*elemDict[abs(attachedElem)].current
+                        except Exception:
+                            raise ValueError('eid: ' + str(eid) + ' failed on current update when adding ' + str(abs(attachedElem)))
+                elemDict[eid].current = 0.5*(eCP + eCN)
 
         if vchange < solverTolerance:
             print('\n**** Solver Finished In ' + str(i) + ' Iterations ****\n')
@@ -149,12 +162,8 @@ def funSPICE(inputFile, solverOptions, outputOptions):
     return nodeDict, elemDict, shortedElems
 
 if __name__ == '__main__':
-    inputFile = './circuit.txt'
+    inputFile = './testcircuits/sourcemadness.txt'
     solverOptions = dict(spiceRefNode='0', capAdmittance=0, solverTolerance=10e-6, refV=0.0, maxIters=int(3*10e4))
     outputOptions = dict(printRead=True, printResults=True, printSupernodes=True)
-    #outputOptions = dict(printRead=False, printResults=True, printSupernodes=False)
     nodeDict, elemDict, shortedElems = funSPICE(inputFile, solverOptions, outputOptions)
     writeOutput(nodeDict, elemDict, './output.txt')
-    #onodeDict, oelemDict = readOutput('./refCircuit.txt')
-    #print(onodeDict)
-    #print(oelemDict)

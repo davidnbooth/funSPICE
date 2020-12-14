@@ -1,6 +1,6 @@
 import numpy as np
 from circuitSimHelpers import supernodeInternalGraph
-
+import string
 
 class Elem:
     def __init__(self, name, pnode, nnode, value):
@@ -14,7 +14,10 @@ class Elem:
         self.nnode = nnode
         self.pnode = pnode
         self.value = float(value)
-        self.current = None
+        if self.typ in {'V', 'L'}:
+            self.current = 1
+        else:
+            self.current = None
 
     def prnt(self):
         print(str(self.name) + ' ' + str(self.pnode) + ' ' + str(self.nnode) + ' ' + str(self.value))
@@ -185,23 +188,34 @@ def writeOutput(nDict, eDict, filename):
                 f.write('I(' + eDict[eid].name + ') ' + str(round(eDict[eid].current, 2)) + '\n')
     return True
 
+
 def readOutput(filename):
     nodeDict = dict()
     elemDict = dict()
     with open(filename, 'r') as f:
         for line in f:
+            line = line.strip().replace("\x00", "")
             if line[0] == 'V':
                 nodeDict[line.split()[0][2:-1].upper()] = float(line.split()[1])
             elif line[0] == 'I':
-                    elemDict[line.split()[0][2:-1].upper()] = float(line.split()[1])
+                elemDict[line.split()[0][2:-1].upper()] = float(line.split()[1])
     if '0' not in nodeDict.keys():
         nodeDict['0'] = 0.0
     return nodeDict, elemDict
 
+
 # test file vs ref file
 def compareOutputs(tfile, rfile):
-    tNodes, tElems = readOutput(tfile)
-    rNodes, rElems = readOutput(rfile)
+    if type(tfile) == str:
+        tNodes, tElems = readOutput(tfile)
+    else:
+        tNodes = tfile[0]
+        tElems = tfile[1]
+    if type(rfile) == str:
+        rNodes, rElems = readOutput(rfile)
+    else:
+        rNodes = rfile[0]
+        rElems = rfile[1]
     nodeDiff = dict()
     for nid in tNodes:
         if nid in rNodes:
@@ -225,7 +239,8 @@ def compareOutputs(tfile, rfile):
     return nodeDiff, elemDiff
 
 if __name__ == '__main__':
-    nDiff, eDiff = compareOutputs('./output.txt', './refCircuit.txt')
-    print(nDiff)
-    print(eDiff)
+    #nDiff, eDiff = compareOutputs('./output.txt', './refCircuit.txt')
+    print(readOutput('./testcircuits/multiplesourcesRLC_out.txt'))
+    #print(nDiff)
+    #print(eDiff)
 

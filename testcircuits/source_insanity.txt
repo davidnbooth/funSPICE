@@ -1,4 +1,4 @@
-* /Users/beccacarmichael/Documents/LTspice/source_insanity.asc
+* /Users/beccacarmichael/Documents/DavidBoothStuff/funSPICE/circuits/source_insanity.asc
 V3 N001 P001 1
 I1 0 P001 2
 V4 N001 P002 4

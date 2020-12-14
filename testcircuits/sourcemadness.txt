@@ -1,0 +1,13 @@
+* /Users/beccacarmichael/Documents/DavidBoothStuff/funSPICE/circuits/sourcemadness.asc
+V3 N001 P001 1
+I1 0 P001 2
+V4 N001 P002 4
+R1 P002 0 1
+I2 N001 0 1
+V2 P003 0 1
+R2 N001 P003 4.7
+R3 N001 P004 1.5
+R4 P004 0 2
+.op
+.backanno
+.end

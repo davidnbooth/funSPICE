@@ -1,0 +1,8 @@
+* /Users/beccacarmichael/Documents/DavidBoothStuff/funSPICE/circuits/parallelvoltageandcurrent.asc
+R1 N002 0 4
+R2 N001 0 2.5
+V1 N002 N001 5
+I1 N001 N002 1
+.op
+.backanno
+.end

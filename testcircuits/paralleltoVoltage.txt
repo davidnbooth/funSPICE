@@ -1,0 +1,8 @@
+* /Users/beccacarmichael/Documents/DavidBoothStuff/funSPICE/circuits/paralleltoVoltage.asc
+R1 N001 N002 8
+R2 N001 0 2
+R3 0 N002 3
+V1 N001 N002 2
+.op
+.backanno
+.end
