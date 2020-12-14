@@ -2,7 +2,7 @@ import os
 from circuitSimParts import *
 from circuitSim import funSPICE
 
-solverOptions = dict(spiceRefNode='0', capAdmittance=0, solverTolerance=10e-6, refV=0.0, maxIters=int(3*10e4))
+solverOptions = dict(spiceRefNode='0', capAdmittance=0, solverTolerance=10e-6, refV=0.0, maxIters=int(3*10e4), wrelax=1.3)
 outputOptions = dict(printRead=False, printResults=False, printSupernodes=False)
 codeResults = dict()
 expectedResults = dict()
