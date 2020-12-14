@@ -92,7 +92,7 @@ def funSPICE(inputFile, solverOptions, outputOptions):
                     supernodes[nodeid].BV = 0
                     vchange = max(vchange, supernodes[nodeid].updateNodes(nodeDictL))  # updates the voltages in supernode
                 else:
-                    currentCalc = partial(nodeCurrent, elemDict, nodeDictL, supernodes[nodeid].elemSet, nUpdate = supernodes[nodeid].nUpdate)
+                    currentCalc = partial(nodeCurrent, elemDict, nodeDictL, supernodes[nodeid].elemSet, nodeid, nUpdate = supernodes[nodeid].nUpdate)
                     supernodes[nodeid].BV = newton(currentCalc, supernodes[nodeid].BV)
                     vchange = max(supernodes[nodeid].updateNodes(nodeDictL), vchange)  # updates the voltages in supernode
             else:
@@ -103,7 +103,7 @@ def funSPICE(inputFile, solverOptions, outputOptions):
                     verbose = False
                     if nodeid in nodestocheck:
                         verbose = True
-                    currentCalc = partial(nodeCurrent, elemDict, nodeDictL, {elem: nodeid for elem in nodeDictL[nodeid].elemSet}, verbose=verbose)
+                    currentCalc = partial(nodeCurrent, elemDict, nodeDictL, {elem: nodeid for elem in nodeDictL[nodeid].elemSet}, nodeid, verbose=verbose)
                     nodeDictL[nodeid].V = newton(currentCalc, nodeDictL[nodeid].V)
                 vchange = max(abs(nodeDictL[nodeid].V - vOld), vchange)
 
@@ -162,7 +162,8 @@ def funSPICE(inputFile, solverOptions, outputOptions):
     return nodeDict, elemDict, shortedElems
 
 if __name__ == '__main__':
-    inputFile = './testcircuits/sourcemadness.txt'
+    #inputFile = './testcircuits/sourcemadness.txt'
+    inputFile = './circuit.txt'
     solverOptions = dict(spiceRefNode='0', capAdmittance=0, solverTolerance=10e-6, refV=0.0, maxIters=int(3*10e4))
     outputOptions = dict(printRead=True, printResults=True, printSupernodes=True)
     nodeDict, elemDict, shortedElems = funSPICE(inputFile, solverOptions, outputOptions)

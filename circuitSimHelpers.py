@@ -10,7 +10,7 @@ def supernodeInternalGraph(nodes, edges):
     queue = []
 
     # pick a root and define its value as reference (zero)
-    root = np.random.choice(list(nodes.keys()))
+    root = sorted(list(nodes.keys()))[0]
     queue.append(root)
     nodes[root].V = 0
     # pull a node
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     #
     #  Should be:  A
     exampleNodes = {'A': {1, 2}, 'B': {-1,}, 'C': {-2, -3, 6}, 'D': {5, -6}, 'E': {3, -4, -5}, 'F': {4, }}
-    exampleEdges = {1: ('A', 'B', 4), 2: ('A', 'C', 3), 3: ('E', 'C', 2), 4: ('F', 'E', 2), 5: ('D', 'E', 2), 6: ('C', 'D', -4)}
+    exampleEdges = {'V1': ('A', 'B', 4), 'V2': ('A', 'C', 3), 'V3': ('E', 'C', 2), 'V4': ('F', 'E', 2), 'V5': ('D', 'E', 2), 'V6': ('C', 'D', -4)}
     exampleNodes = {'N002': {50001,}, 'N012': {-50001}}
 
     from circuitSimParts import Node
@@ -141,5 +141,5 @@ if __name__ == '__main__':
         node.elemSet = exampleNodes[nid]
     edges = {k: Elem(k, v[0], v[1], v[2]) for k, v in exampleEdges.items()}
 
-    edges = {50001: Elem('V01', 'N002', 'N012', 10.)}
+    #edges = {50001: Elem('V01', 'N002', 'N012', 10.)}
     print(supernodeInternalGraph(nodes, edges))

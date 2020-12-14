@@ -1,23 +1,43 @@
 import numpy as np
 from circuitSimHelpers import supernodeInternalGraph
 import string
+import copy
 
 class Elem:
     def __init__(self, name, pnode, nnode, value):
         eTypeDict = {'R': 10000, 'C': 20000, 'L': 30000, 'I': 40000, 'V': 50000}
+        self.equation = dict()
         try:
-            self.typ = name[0].upper()
-            self.id = eTypeDict[self.typ] + int(name[1:])
-            self.name = name
+            if name[0].upper() == 'D':
+                self.typ = 'V'
+                self.name = name
+                self.equation['n'] = 1
+                self.equation['Is'] = 10e-14
+                self.id = eTypeDict[self.typ] + int(name[1:]) + 1000
+            else:
+                self.typ = name[0].upper()
+                self.id = eTypeDict[self.typ] + int(name[1:])
+                self.name = name
         except Exception:
             print('Element Identifier not understood: ' + self.name)
         self.nnode = nnode
         self.pnode = pnode
-        self.value = float(value)
+        if len(self.equation) > 0:
+            self.value = -0.8
+        else:
+            self.value = float(value)
         if self.typ in {'V', 'L'}:
             self.current = 1
         else:
             self.current = None
+
+    def updateValue(self):
+        # Diode:
+        if len(self.equation) > 0:
+            n = self.equation['n']
+            Vt = 0.02585
+            Is = self.equation['Is']
+            self.value = n*Vt*np.log(self.current/Is+1)
 
     def prnt(self):
         print(str(self.name) + ' ' + str(self.pnode) + ' ' + str(self.nnode) + ' ' + str(self.value))
@@ -69,8 +89,13 @@ class Supernode:
             for key in self.nUpdate.keys():
                 self.nUpdate[key] = self.nUpdate[key] - refV
 
-
     def updateNodes(self, nDict):
+        for elem in self.internalElems.values():
+            elem.updateValue()
+        nodesfornupdate = copy.deepcopy(self.internalNodes)
+        for node in nodesfornupdate.values():
+            node.V = None
+        self.nUpdate = supernodeInternalGraph(nodesfornupdate, self.internalElems)
         vchange = 0
         for node in self.nodeCol:
             oldV = nDict[node].V
@@ -144,7 +169,7 @@ def circuitPreprocess(filepath):
 
     return (elemDict, nodeDict, shortedElems, vsources)
 
-def nodeCurrent(elemDict, nodeDictL, attachedElems, startV, nUpdate=None, verbose=False):
+def nodeCurrent(elemDict, nodeDictL, attachedElems, nodeid, startV, nUpdate=None, verbose=False):
     nodalCurrent = 0
     # For each attached element calculate its current
     for eID, nid in attachedElems.items():  #attachedElems is {attachedElemID: nodeAttachedtothatelem, ...} -> for supernodes
@@ -171,7 +196,7 @@ def nodeCurrent(elemDict, nodeDictL, attachedElems, startV, nUpdate=None, verbos
             if verbose:
                 print(sourceI)
         else:
-            print('son u have a problem in the nodeCurrent calc')
+            print('son u have a problem in the nodeCurrent calc for node ' + str(nodeid))
             print(elemDict[abs(eID)].typ)
         if verbose:
             print('Voltage at "home" node ' + str(nid) + ': ' + str(round(V,2)))
@@ -194,7 +219,7 @@ def readOutput(filename):
     elemDict = dict()
     with open(filename, 'r') as f:
         for line in f:
-            line = line.strip().replace("\x00", "")
+            line = line.strip().replace('\x00', '')
             if line[0] == 'V':
                 nodeDict[line.split()[0][2:-1].upper()] = float(line.split()[1])
             elif line[0] == 'I':
@@ -238,9 +263,6 @@ def compareOutputs(tfile, rfile):
             break
     return nodeDiff, elemDiff
 
-if __name__ == '__main__':
-    #nDiff, eDiff = compareOutputs('./output.txt', './refCircuit.txt')
-    print(readOutput('./testcircuits/multiplesourcesRLC_out.txt'))
-    #print(nDiff)
-    #print(eDiff)
 
+if __name__ == '__main__':
+    print(readOutput('./testcircuits/multiplesourcesRLC_out.txt'))
