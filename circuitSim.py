@@ -163,9 +163,10 @@ def funSPICE(inputFile, solverOptions, outputOptions):
         print('Solver Time Elapsed: ' + str(round(time.process_time() - t0, 4)) + ' s')
     return nodeDict, elemDict, shortedElems
 
+
 if __name__ == '__main__':
-    #inputFile = './testcircuits/sourcemadness.txt'
-    inputFile = './circuit.txt'
+    inputFile = './testcircuits/diodemadness.txt'
+    #inputFile = './circuit.txt'
     solverOptions = dict(spiceRefNode='0', capAdmittance=0, solverTolerance=10e-6, refV=0.0, maxIters=int(3*10e4), wrelax=1)
     outputOptions = dict(printRead=True, printResults=True, printSupernodes=True)
     nodeDict, elemDict, shortedElems = funSPICE(inputFile, solverOptions, outputOptions)

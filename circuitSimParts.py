@@ -1,6 +1,5 @@
 import numpy as np
 from circuitSimHelpers import supernodeInternalGraph
-import string
 import copy
 
 class Elem:
@@ -124,6 +123,7 @@ def circuitPreprocess(filepath):
     with open(filepath, 'r') as f:
         inputCirc = []
         for line in f:
+            line = line.strip().replace('\x00', '')
             if line[0][0] not in {'.', '%', '*', '#'}:
                 inputCirc.append(line.split())
     inputCirc = np.array(inputCirc, dtype=str)
@@ -245,9 +245,9 @@ def compareOutputs(tfile, rfile):
     for nid in tNodes:
         if nid in rNodes:
             if np.isclose(tNodes[nid], rNodes[nid]):
-                nodeDiff[nid] = 0
+                nodeDiff[nid] = (0, 0)
             else:
-                nodeDiff[nid] = 2 * (tNodes[nid] - rNodes[nid]) / (tNodes[nid] + rNodes[nid])
+                nodeDiff[nid] = (2 * (tNodes[nid] - rNodes[nid]) / (tNodes[nid] + rNodes[nid]), abs(tNodes[nid] - rNodes[nid]))
         else:
             print('Results are different length!!')
             break
@@ -255,9 +255,9 @@ def compareOutputs(tfile, rfile):
     for eid in tElems:
         if eid in rElems:
             if np.isclose(tElems[eid], rElems[eid]):
-                elemDiff[eid] = 0
+                elemDiff[eid] = (0, 0)
             else:
-                elemDiff[eid] = 2 * (tElems[eid] - rElems[eid]) / (tElems[eid] + rElems[eid])
+                elemDiff[eid] = (2 * (tElems[eid] - rElems[eid]) / (tElems[eid] + rElems[eid]), abs(tElems[eid] - rElems[eid]))
         else:
             print('Results are different length!!')
             break
