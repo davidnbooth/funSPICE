@@ -2,6 +2,7 @@ import numpy as np
 from circuitSimHelpers import supernodeInternalGraph
 import copy
 
+
 class Elem:
     def __init__(self, name, pnode, nnode, value):
         eTypeDict = {'R': 10000, 'C': 20000, 'L': 30000, 'I': 40000, 'V': 50000}
@@ -56,7 +57,7 @@ class Supernode:
         self.elemSet = set()
         self.BV = 0
         for nid in self.nodeCol:
-                self.elemSet.update(nDict[nid].elemSet)
+            self.elemSet.update(nDict[nid].elemSet)
         # find elements internal to the supernode:
         self.internalElemset = set()
         for eid in self.elemSet:
@@ -70,7 +71,7 @@ class Supernode:
                 self.elemSet[eid] = eDict[eid].pnode
             else:
                 self.elemSet[eid] = eDict[-eid].nnode
-        #define internalNodes - a list of node objects without references to elems outside the supernode and also internalElems
+        # define internalNodes - a list of node objects without references to elems outside the supernode and also internalElems
         self.internalNodes = dict()
         for nid in self.nodeCol:
             self.internalNodes[nid] = Node(nid)
@@ -167,12 +168,13 @@ def circuitPreprocess(filepath):
     for node in nodeDict.values():
         node.elemSet = node.elemSet - shortedElemIds
 
-    return (elemDict, nodeDict, shortedElems, vsources)
+    return elemDict, nodeDict, shortedElems, vsources
+
 
 def nodeCurrent(elemDict, nodeDictL, attachedElems, nodeid, startV, nUpdate=None, verbose=False):
     nodalCurrent = 0
     # For each attached element calculate its current
-    for eID, nid in attachedElems.items():  #attachedElems is {attachedElemID: nodeAttachedtothatelem, ...} -> for supernodes
+    for eID, nid in attachedElems.items():  # attachedElems is {attachedElemID: nodeAttachedtothatelem, ...} -> for supernodes
         if verbose:
             print(elemDict[abs(eID)].name + 'Current: ')
         # define voltage of current node
@@ -199,8 +201,9 @@ def nodeCurrent(elemDict, nodeDictL, attachedElems, nodeid, startV, nUpdate=None
             print('son u have a problem in the nodeCurrent calc for node ' + str(nodeid))
             print(elemDict[abs(eID)].typ)
         if verbose:
-            print('Voltage at "home" node ' + str(nid) + ': ' + str(round(V,2)))
+            print('Voltage at "home" node ' + str(nid) + ': ' + str(round(V, 2)))
     return nodalCurrent
+
 
 def writeOutput(nDict, eDict, filename):
     with open(filename, 'w') as f:

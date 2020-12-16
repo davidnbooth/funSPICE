@@ -10,7 +10,7 @@ import copy
 def funSPICE(inputFile, solverOptions, outputOptions):
     print('\n\n\n\n**** Simulation Start: ' + inputFile + ' ****')
     # Debugging:
-    nodestocheck = set() #{'N009'}
+    nodestocheck = set()  # {'N009'}
 
     spiceRefNode = solverOptions['spiceRefNode']
     capAdmittance = solverOptions['capAdmittance']
@@ -75,7 +75,7 @@ def funSPICE(inputFile, solverOptions, outputOptions):
         else:
             print('- No Supernodes -')
 
-    # each supernode knows:  BV, the node collection, the v(BV) function for each collection node, and all attached elems
+    # each supernode knows: BV, the node collection, the v(BV) function for each collection node, and all attached elems
     # the nodeValues loop needs to change so it updates supernodes but not nodes inside them
     # the nodeCurrent function needs to be able to take supernodes as inputs
     nodesToUpdate = [nid for nid in sorted(nodeDict.keys()) if nid not in nodesInsideSupernodes]
@@ -91,7 +91,7 @@ def funSPICE(inputFile, solverOptions, outputOptions):
             if nodeid[0] == 'S':
                 if nodeid == 'S00':
                     supernodes[nodeid].BV = 0
-                    vchange = max(vchange, supernodes[nodeid].updateNodes(nodeDictL))  # updates the voltages in supernode
+                    vchange = max(vchange, supernodes[nodeid].updateNodes(nodeDictL))  # updates the supernode voltages
                 else:
                     currentCalc = partial(nodeCurrent, elemDict, nodeDictL, supernodes[nodeid].elemSet, nodeid, nUpdate = supernodes[nodeid].nUpdate)
                     supernodes[nodeid].BV = newton(currentCalc, supernodes[nodeid].BV)*wrelax + (1-wrelax)*supernodes[nodeid].BV
@@ -166,7 +166,7 @@ def funSPICE(inputFile, solverOptions, outputOptions):
 
 if __name__ == '__main__':
     inputFile = './testcircuits/diodemadness.txt'
-    #inputFile = './circuit.txt'
+    # inputFile = './circuit.txt'
     solverOptions = dict(spiceRefNode='0', capAdmittance=0, solverTolerance=10e-6, refV=0.0, maxIters=int(3*10e4), wrelax=1)
     outputOptions = dict(printRead=True, printResults=True, printSupernodes=True)
     nodeDict, elemDict, shortedElems = funSPICE(inputFile, solverOptions, outputOptions)

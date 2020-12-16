@@ -3,7 +3,7 @@ from circuitSimParts import *
 from circuitSim import funSPICE
 
 testTolerance = 0.008
-solverOptions = dict(spiceRefNode='0', capAdmittance=0, solverTolerance=10e-6, refV=0.0, maxIters=int(3*10e4), wrelax=1)
+solverOptions = dict(spiceRefNode='0', capAdmittance=0, solverTolerance=10e-6, refV=0.0, maxIters=int(2*10e4), wrelax=1)
 outputOptions = dict(printRead=False, printResults=False, printSupernodes=False)
 codeResults = dict()
 expectedResults = dict()
