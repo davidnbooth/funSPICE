@@ -153,7 +153,8 @@ def funSPICE(inputFile, solverOptions, outputOptions):
         for nid in nodeDict.keys():
             print('Node ' + str(nid) + ': ' + str(round(nodeDict[nid].V, 2)))
         print('Element Currents:')
-        for eid in elemDict.keys():
+        elems = customListSort(list(elemDict.keys()), (20, 51, 30, 40, 10, 50))
+        for eid in elems:
             if elemDict[eid].current is None:
                 print(elemDict[eid].name + ': None')
             else:

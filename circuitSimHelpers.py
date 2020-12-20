@@ -111,9 +111,24 @@ def secantUpdate(f, initialGuess, maxiterations, tolerance):
             break
     return Vn1
 
+
+# takes a list of equal-digit integers and a list of starts
+# e.g.   51001 51000  50000  30001 30000 and (50, 51, 30)
+# and returns a list where all numbers that start with 50 are first, then 51, then 30, each sublist is reverse sorted
+def customListSort(inList, sortOrder):
+    checkDigits = int(np.log10(sortOrder[0]) + 1)
+    numDigits = int(np.log10(inList[0]) + 1)
+    nums = {n: [] for n in sortOrder}
+    for number in inList:
+        nums[int(number/(10**(numDigits-checkDigits)))].append(number)
+    outputList = []
+    for num in sortOrder:
+        outputList.extend(reversed(sorted(nums[num])))
+    return outputList
+
 if __name__ == '__main__':
     inputList = ((0, 1), (2, 1), (2, 40), (5, 6), (6, 8), (3, 7))
-    print(clumpClumps(inputList))
+    #print(clumpClumps(inputList))
 
     #
     #     Example:
@@ -142,4 +157,7 @@ if __name__ == '__main__':
     edges = {k: Elem(k, v[0], v[1], v[2]) for k, v in exampleEdges.items()}
 
     #edges = {50001: Elem('V01', 'N002', 'N012', 10.)}
-    print(supernodeInternalGraph(nodes, edges))
+    #print(supernodeInternalGraph(nodes, edges))
+
+    inList = [51004, 51003, 51002, 51001, 50003, 50002, 50001, 40002, 40001, 30004, 30003, 30002, 30001, 20003, 20001, 10016, 10015, 10014, 10013, 10012, 10011, 10010, 10009, 10008, 10007, 10006, 10005, 10004, 10003, 10002, 10001]
+    print(customListSort(inList, (20, 51, 30, 40, 10, 50)))
