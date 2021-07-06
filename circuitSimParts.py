@@ -214,16 +214,22 @@ def nodeCurrent(elemDict, nodeDictL, attachedElems, nodeid, startV, nUpdate=None
     return nodalCurrent
 
 
-def writeOutput(nDict, eDict, filename):
-    with open(filename, 'w') as f:
-        for nid in nDict.keys():
-            f.write('V(' + str(nid) + ') ' + str(round(nDict[nid].V, 2)) + '\n')
-        for eid in eDict.keys():
-            if eDict[eid].current is None:
-                f.write('I(' + eDict[eid].name + ') None\n')
-            else:
-                f.write('I(' + eDict[eid].name + ') ' + str(round(eDict[eid].current, 2)) + '\n')
-    return True
+def writeOutput(nDict, eDict, filename, file_write=True):
+    out = []
+    for nid in nDict.keys():
+        out.append('V(' + str(nid) + ') ' + str(round(nDict[nid].V, 2)) + '\n')
+    for eid in eDict.keys():
+        if eDict[eid].current is None:
+            out.append('I(' + eDict[eid].name + ') None\n')
+        else:
+            out.append('I(' + eDict[eid].name + ') ' + str(round(eDict[eid].current, 2)) + '\n')
+    if file_write:
+        with open(filename, 'w') as f:
+            for line in out:
+                f.write(line)
+        return True
+    else:
+        return ''.join(out)
 
 
 def readOutput(filename):
