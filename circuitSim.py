@@ -10,7 +10,7 @@ import copy
 
 
 def funSPICE(inputFile, solverOptions, outputOptions):
-    print('\n\n\n\n**** Simulation Start: ' + inputFile + ' ****')
+    #print('\n\n\n\n**** Simulation Start: ' + inputFile + ' ****')
     # Debugging:
     nodestocheck = set()  # {'N009'}
 
