@@ -121,13 +121,22 @@ class Supernode:
 
 def circuitPreprocess(filepath):
     # Reading in the file with comments
-    with open(filepath, 'r') as f:
+    if read_file:
+        with open(input, 'r') as f:
+            inputCirc = []
+            for line in f:
+                line = line.strip().replace('\x00', '')
+                if line[0][0] not in {'.', '%', '*', '#'}:
+                    inputCirc.append(line.split())
+        inputCirc = np.array(inputCirc, dtype=str)
+    else:
+        input = input.strip().split('\n')
         inputCirc = []
-        for line in f:
+        for line in input:
             line = line.strip().replace('\x00', '')
             if line[0][0] not in {'.', '%', '*', '#'}:
                 inputCirc.append(line.split())
-    inputCirc = np.array(inputCirc, dtype=str)
+        inputCirc = np.array(inputCirc, dtype=str)
 
     # Make Node and Element Dicts
     elemDict = dict()  # element ids are keys, value is element object
