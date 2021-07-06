@@ -119,23 +119,23 @@ class Supernode:
             print('        ' + str(node.id) + ':  ' + ''.join([str(eid)+', ' for eid in node.elemSet]))
 
 
-def circuitPreprocess(input, read_file=True):
+def circuitPreprocess(input):
     # Reading in the file with comments
-    if read_file:
-        with open(input, 'r') as f:
-            inputCirc = []
-            for line in f:
-                line = line.strip().replace('\x00', '')
-                if line[0][0] not in {'.', '%', '*', '#'}:
-                    inputCirc.append(line.split())
-        inputCirc = np.array(inputCirc, dtype=str)
-    else:
+    if '\n' in input:
         input = input.strip().split('\n')
         inputCirc = []
         for line in input:
             line = line.strip().replace('\x00', '')
             if line[0][0] not in {'.', '%', '*', '#'}:
                 inputCirc.append(line.split())
+        inputCirc = np.array(inputCirc, dtype=str)
+    else:
+        with open(input, 'r') as f:
+            inputCirc = []
+            for line in f:
+                line = line.strip().replace('\x00', '')
+                if line[0][0] not in {'.', '%', '*', '#'}:
+                    inputCirc.append(line.split())
         inputCirc = np.array(inputCirc, dtype=str)
 
     # Make Node and Element Dicts

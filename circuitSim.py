@@ -1,5 +1,7 @@
 import numpy as np
 from functools import partial
+import sys
+sys.path.insert(0, '..')
 import funSPICE.circuitSimHelpers as helper
 import funSPICE.circuitSimParts as parts
 from scipy.optimize import newton
