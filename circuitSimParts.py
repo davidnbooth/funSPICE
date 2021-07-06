@@ -1,5 +1,5 @@
 import numpy as np
-from circuitSimHelpers import supernodeInternalGraph
+import funSPICE.circuitSimHelpers
 import copy
 
 
@@ -83,7 +83,7 @@ class Supernode:
             self.internalElems[eid] = elem
             if elem.typ == 'V':
                 self.internalElems[eid].value = eDict[eid].value
-        self.nUpdate = supernodeInternalGraph(self.internalNodes, self.internalElems)
+        self.nUpdate = funSPICE.circuitSimHelpers.supernodeInternalGraph(self.internalNodes, self.internalElems)
         if self.id == 0:
             refV = self.nUpdate['0']
             for key in self.nUpdate.keys():
@@ -95,7 +95,7 @@ class Supernode:
         nodesfornupdate = copy.deepcopy(self.internalNodes)
         for node in nodesfornupdate.values():
             node.V = None
-        self.nUpdate = supernodeInternalGraph(nodesfornupdate, self.internalElems)
+        self.nUpdate = funSPICE.circuitSimHelpers.supernodeInternalGraph(nodesfornupdate, self.internalElems)
         vchange = 0
         for node in self.nodeCol:
             oldV = nDict[node].V
@@ -119,7 +119,7 @@ class Supernode:
             print('        ' + str(node.id) + ':  ' + ''.join([str(eid)+', ' for eid in node.elemSet]))
 
 
-def circuitPreprocess(filepath):
+def circuitPreprocess(input, read_file=True):
     # Reading in the file with comments
     if read_file:
         with open(input, 'r') as f:

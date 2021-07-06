@@ -1,7 +1,7 @@
 import numpy as np
 from functools import partial
-from circuitSimHelpers import *
-from circuitSimParts import *
+import funSPICE.circuitSimHelpers as helper
+import funSPICE.circuitSimParts as parts
 from scipy.optimize import newton
 import time
 import copy
@@ -21,7 +21,7 @@ def funSPICE(inputFile, solverOptions, outputOptions):
     printResults = outputOptions['printResults']
     printSupernodes = outputOptions['printSupernodes']
     ##### File Input #####
-    elemDict, nodeDict, shortedElems, _ = circuitPreprocess(inputFile)
+    elemDict, nodeDict, shortedElems, _ = parts.circuitPreprocess(inputFile)
     if printRead:
         print('**** Preprocessing ****')
         print('Elements:')
@@ -55,7 +55,7 @@ def funSPICE(inputFile, solverOptions, outputOptions):
             nodeClumps.append((elem.pnode, elem.nnode))
             nodesInsideSupernodes.add(elem.pnode)
             nodesInsideSupernodes.add(elem.nnode)
-    nodeClumps = clumpClumps(nodeClumps)
+    nodeClumps = helper.clumpClumps(nodeClumps)
     supernodes = dict()
     groundClump = None
     for clump in nodeClumps:
@@ -64,9 +64,9 @@ def funSPICE(inputFile, solverOptions, outputOptions):
             nodeClumps = [item for item in nodeClumps if item is not clump]
             break
     if groundClump is not None:
-        supernodes['S00'] = Supernode(0, groundClump, nodeDictL, elemDict)
+        supernodes['S00'] = parts.Supernode(0, groundClump, nodeDictL, elemDict)
     for i, clump in enumerate(nodeClumps):
-        supernodes['S0' + str(i+1)] = Supernode(i+1, clump, nodeDictL, elemDict)
+        supernodes['S0' + str(i+1)] = parts.Supernode(i+1, clump, nodeDictL, elemDict)
     if printSupernodes:
         if len(supernodes) > 0:
             print('Supernodes:')
@@ -93,7 +93,7 @@ def funSPICE(inputFile, solverOptions, outputOptions):
                     supernodes[nodeid].BV = 0
                     vchange = max(vchange, supernodes[nodeid].updateNodes(nodeDictL))  # updates the supernode voltages
                 else:
-                    currentCalc = partial(nodeCurrent, elemDict, nodeDictL, supernodes[nodeid].elemSet, nodeid, nUpdate = supernodes[nodeid].nUpdate)
+                    currentCalc = partial(parts.nodeCurrent, elemDict, nodeDictL, supernodes[nodeid].elemSet, nodeid, nUpdate = supernodes[nodeid].nUpdate)
                     supernodes[nodeid].BV = newton(currentCalc, supernodes[nodeid].BV)*wrelax + (1-wrelax)*supernodes[nodeid].BV
                     vchange = max(supernodes[nodeid].updateNodes(nodeDictL), vchange)  # updates the voltages in supernode
             else:
@@ -104,7 +104,7 @@ def funSPICE(inputFile, solverOptions, outputOptions):
                     verbose = False
                     if nodeid in nodestocheck:
                         verbose = True
-                    currentCalc = partial(nodeCurrent, elemDict, nodeDictL, {elem: nodeid for elem in nodeDictL[nodeid].elemSet}, nodeid, verbose=verbose)
+                    currentCalc = partial(parts.nodeCurrent, elemDict, nodeDictL, {elem: nodeid for elem in nodeDictL[nodeid].elemSet}, nodeid, verbose=verbose)
                     newV = newton(currentCalc, nodeDictL[nodeid].V)
                     nodeDictL[nodeid].V = newV*wrelax + (1-wrelax)*vOld
                 vchange = max(abs(nodeDictL[nodeid].V - vOld), vchange)
@@ -153,7 +153,7 @@ def funSPICE(inputFile, solverOptions, outputOptions):
         for nid in nodeDict.keys():
             print('Node ' + str(nid) + ': ' + str(round(nodeDict[nid].V, 2)))
         print('Element Currents:')
-        elems = customListSort(list(elemDict.keys()), (20, 51, 30, 40, 10, 50))
+        elems = helper.customListSort(list(elemDict.keys()), (20, 51, 30, 40, 10, 50))
         for eid in elems:
             if elemDict[eid].current is None:
                 print(elemDict[eid].name + ': None')
@@ -171,4 +171,4 @@ if __name__ == '__main__':
     solverOptions = dict(spiceRefNode='0', capAdmittance=0, solverTolerance=10e-6, refV=0.0, maxIters=int(3*10e4), wrelax=1)
     outputOptions = dict(printRead=True, printResults=True, printSupernodes=True)
     nodeDict, elemDict, shortedElems = funSPICE(inputFile, solverOptions, outputOptions)
-    writeOutput(nodeDict, elemDict, './output.txt')
+    parts.writeOutput(nodeDict, elemDict, './output.txt')
