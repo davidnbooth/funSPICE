@@ -1,11 +1,11 @@
-* /Users/beccacarmichael/Documents/DavidBoothStuff/funSPICE/diode.asc
+* ~/Documents/DavidBoothStuff/funSPICE/diode.asc
 R2 N003 0 3
 D1 N002 N003 D
 V1 N001 N004 7
 R1 N002 N001 2
 R3 0 N004 1
 .model D D
-.lib /Users/beccacarmichael/Library/Application Support/LTspice/lib/cmp/standard.dio
+.lib ~/Library/Application Support/LTspice/lib/cmp/standard.dio
 .op
 .backanno
 .end
